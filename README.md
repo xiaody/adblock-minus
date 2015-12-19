@@ -9,7 +9,7 @@ The package also contains a runnable Chrome extension demo, could be a good usag
 To run the demo:
 
 ```
-npm install && npm run build
+npm install && mkdir -p build && npm run build
 ```
 
 then load the folder via Chrome extensions page.
