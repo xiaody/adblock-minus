@@ -1,0 +1,25 @@
+{
+  "name": "adblock-minus",
+  "version": "0.3.0",
+  "description": "Implements core functionality of adblocking",
+  "main": "index.js",
+  "engines": {
+    "node": ">=4"
+  },
+  "scripts": {
+    "test": "standard lib/*.js",
+    "build": "npm test && browserify config/*.json lib/*.js -o build/bundle.js",
+    "postinstall": "rm -r node_modules/browserify/node_modules/crypto-browserify/node_modules/public-encrypt/test || true"
+  },
+  "keywords": [
+    "adblock",
+    "adblock-plus"
+  ],
+  "author": "xiaody",
+  "license": "GPL-3.0",
+  "repository": "xiaody/adblock-minus",
+  "devDependencies": {
+    "browserify": "12.0.1",
+    "standard": "5.4.1"
+  }
+}

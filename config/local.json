@@ -1,0 +1,10 @@
+{
+  "subscriptions": [
+    "https://easylist-downloads.adblockplus.org/easylist_noelemhide.txt",
+    "https://easylist-downloads.adblockplus.org/easylistchina.txt"
+  ],
+  "redirect": {
+    "IMAGE": "data:image/gif;base64,R0lGODlhAQABAAAAACw=",
+    "OTHER": "about:blank"
+  }
+}
