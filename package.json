@@ -1,6 +1,6 @@
 {
   "name": "adblock-minus",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Implements core functionality of adblocking",
   "main": "index.js",
   "engines": {
@@ -19,7 +19,7 @@
   "license": "GPL-3.0",
   "repository": "xiaody/adblock-minus",
   "devDependencies": {
-    "browserify": "12.0.1",
-    "standard": "5.4.1"
+    "browserify": "13.0.0",
+    "standard": "6.0.8"
   }
 }
