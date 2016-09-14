@@ -8,8 +8,8 @@
   },
   "scripts": {
     "test": "standard lib/*.js",
-    "build": "npm test && mkdir -p build && browserify config/*.json lib/*.js -o build/bundle.js",
-    "postinstall": "rm -r node_modules/public-encrypt/test || true"
+    "prebuild": "npm test && mkdir -p build && cp manifest.json build",
+    "build": "browserify config/*.json lib/*.js -o build/bundle.js"
   },
   "keywords": [
     "adblock",

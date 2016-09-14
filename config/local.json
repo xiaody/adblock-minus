@@ -1,11 +1,16 @@
 {
   "subscriptions": [
     "https://easylist-downloads.adblockplus.org/easylist_noelemhide.txt",
+    "https://easylist.to/easylist/easyprivacy.txt",
+    "https://easylist-downloads.adblockplus.org/antiadblockfilters.txt",
     "https://easylist-downloads.adblockplus.org/easylistchina.txt"
   ],
   "additional": [
+    "youtube.com##.ad-div"
   ],
   "whitelist": [
+    "localhost",
+    "127.0.0.1"
   ],
   "redirect": {
     "IMAGE": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",

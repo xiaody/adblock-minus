@@ -1,20 +1,20 @@
 {
-    "name": "Adblock Minus",
-    "version": "0.4.1",
-    "manifest_version": 2,
-    "minimum_chrome_version": "47",
-    "permissions": [
-        "http://*/*",
-        "https://*/*",
-        "webRequest",
-        "webRequestBlocking",
-        "tabs",
-        "webNavigation",
-        "storage"
+  "name": "Adblock Minus",
+  "version": "0.4.1",
+  "manifest_version": 2,
+  "minimum_chrome_version": "47",
+  "permissions": [
+    "http://*/*",
+    "https://*/*",
+    "webRequest",
+    "webRequestBlocking",
+    "tabs",
+    "webNavigation",
+    "storage"
     ],
     "background": {
-        "scripts": [
-            "build/bundle.js"
+      "scripts": [
+        "bundle.js"
         ]
     }
 }

@@ -12,4 +12,4 @@ To run the demo:
 npm install && npm run build
 ```
 
-then load the folder via Chrome extensions page.
+then load the `build` folder via Chrome extensions page.
