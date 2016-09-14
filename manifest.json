@@ -14,7 +14,8 @@
     ],
     "background": {
       "scripts": [
-        "bundle.js"
+        "vendor.js",
+        "app.js"
         ]
     },
     "homepage_url": "https://github.com/{{&repository}}"

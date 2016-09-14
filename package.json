@@ -8,9 +8,10 @@
   },
   "scripts": {
     "test": "standard lib/*.js",
+    "chrome-manifest": "mustache package.json manifest.json > build/manifest.json",
+    "chrome-vendor": "browserify -r url > build/vendor.js",
     "prebuild": "npm test && mkdir -p build && npm run chrome-manifest",
-    "build": "browserify config/*.json lib/*.js -o build/bundle.js",
-    "chrome-manifest": "mustache package.json manifest.json > build/manifest.json"
+    "build": "npm run chrome-vendor && browserify -e lib/Chrome.js -x url > build/app.js"
   },
   "keywords": [
     "adblock",
