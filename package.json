@@ -8,8 +8,9 @@
   },
   "scripts": {
     "test": "standard lib/*.js",
-    "prebuild": "npm test && mkdir -p build && cp manifest.json build",
-    "build": "browserify config/*.json lib/*.js -o build/bundle.js"
+    "prebuild": "npm test && mkdir -p build && npm run chrome-manifest",
+    "build": "browserify config/*.json lib/*.js -o build/bundle.js",
+    "chrome-manifest": "mustache package.json manifest.json > build/manifest.json"
   },
   "keywords": [
     "adblock",
@@ -20,6 +21,7 @@
   "repository": "xiaody/adblock-minus",
   "devDependencies": {
     "browserify": "13.1.0",
+    "mustache": "2.2.1",
     "standard": "8.0.0"
   }
 }
