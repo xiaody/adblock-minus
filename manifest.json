@@ -1,6 +1,6 @@
 {
   "name": "Adblock Minus",
-  "version": "{{version}}",
+  "version": "{{&version}}",
   "manifest_version": 2,
   "minimum_chrome_version": "47",
   "permissions": [
@@ -17,5 +17,5 @@
         "bundle.js"
         ]
     },
-    "homepage_url": "https://github.com/{{repository}}"
+    "homepage_url": "https://github.com/{{&repository}}"
 }
