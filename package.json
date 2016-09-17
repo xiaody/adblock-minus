@@ -1,6 +1,6 @@
 {
   "name": "adblock-minus",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Implements core functionality of adblocking",
   "main": "index.js",
   "engines": {
@@ -32,7 +32,9 @@
     "standard": "8.0.0"
   },
   "babel": {
-    "plugins": ["transform-es2015-modules-commonjs"]
+    "plugins": [
+      "transform-es2015-modules-commonjs"
+    ]
   },
   "browserify": {
     "transform": [
