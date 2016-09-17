@@ -1,31 +1,21 @@
 /**
  * Chrome extension example
- * ___________________________
- * |          chrome          |
- * |--------------------------|
- * |    Matcher    |          |
- * |---------------|          |
- * | FilterClasses |          |
- * |---------------|          |
- * |                  Utils   |
- * |__________________________|
  */
+import Matcher from '../lib/Matcher'
+import {extractDomain, isThirdParty} from '../lib/utils'
+import {CrTabs} from './helpers'
+const Tabs = new CrTabs()
 
-'use strict'
 const config = require('../config/local.json')
 const subscriptions = config.subscriptions || []
 const additional = config.additional || []
 const whitelist = config.whitelist || []
 const redirectTable = config.redirect
 
-const Matcher = require('./Matcher').Matcher
-const extractDomain = require('./Utils').crURL.extractDomain
-const Tabs = new (require('./Utils').CrTabs)
-
 const chrome = window.chrome
 const storage = chrome.storage.local
-const insertCSS = function (tabId, detail) {
-  chrome.tabs.insertCSS(tabId, detail, function () {
+const insertCSS = (tabId, detail) => {
+  chrome.tabs.insertCSS(tabId, detail, () => {
     if (chrome.runtime.lastError) {
       console.warn(chrome.runtime.lastError.message, tabId, Tabs.get(tabId))
     }
@@ -35,7 +25,7 @@ const insertCSS = function (tabId, detail) {
 subscriptions.forEach(addListFromURL)
 additional.forEach(Matcher.addFilter)
 
-chrome.tabs.onRemoved.addListener(function (id) { Tabs.delete(id) })
+chrome.tabs.onRemoved.addListener((id) => Tabs.delete(id))
 chrome.webNavigation.onCommitted.addListener(onCommitted)
 chrome.webRequest.onBeforeRequest.addListener(
   onBeforeRequest, {urls: ['http://*/*', 'https://*/*']}, ['blocking']
@@ -49,10 +39,10 @@ function onCommitted (details) {
 }
 
 function insertXstyle (tabId, xstyle) {
-  for (let style of xstyle) {
-    if (!style) continue
+  for (let selectors of xstyle) {
+    if (!selectors.length) continue
     insertCSS(tabId, {
-      code: style,
+      code: selectors.join(',') + '{display:none!important}',
       runAt: 'document_start'
     })
   }
@@ -82,7 +72,8 @@ function onBeforeRequest (details) {
     type = type.toUpperCase()
   }
 
-  if (whitelist.includes(documentHost)) {
+  if (!documentHost ||
+    whitelist.some((domain) => !isThirdParty(documentHost, domain))) {
     return
   }
 
@@ -115,12 +106,12 @@ function onBeforeRequest (details) {
 function addListFromURL (url) {
   let promise = window.fetch(url)
     .then((res) => res.text())
-    .then(function (txt) {
+    .then((txt) => {
       storage.set({ [url]: txt })
       return txt
     }).catch((err) => void console.error(err))
 
-  storage.get(url, function (item) {
+  storage.get(url, (item) => {
     if (item[url]) {
       addFilterFromDoc(item[url])
     } else {

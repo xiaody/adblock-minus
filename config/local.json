@@ -10,7 +10,8 @@
   ],
   "whitelist": [
     "localhost",
-    "127.0.0.1"
+    "127.0.0.1",
+    "in.zhihu.com"
   ],
   "redirect": {
     "IMAGE": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==",
