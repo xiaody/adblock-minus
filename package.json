@@ -2,7 +2,13 @@
   "name": "adblock-minus",
   "version": "0.6.0",
   "description": "Implements core functionality of adblocking",
-  "main": "index.js",
+  "main": "bundle.js",
+  "jsnext:main": "module.js",
+  "files": [
+    "bundle.js",
+    "module.js",
+    "lib/*.js"
+  ],
   "engines": {
     "node": ">=6.4"
   },
@@ -10,6 +16,7 @@
     "test": "npm run lint && npm run spec",
     "build": "npm run chrome-vendor && browserify -e chrome/background.js -x url > build/app.js",
     "prebuild": "npm test && mkdir -p build && npm run chrome-manifest",
+    "prepublish": "browserify --node -e module.js -s default > bundle.js",
     "chrome-manifest": "mustache package.json manifest.json > build/manifest.json",
     "chrome-vendor": "browserify -r url > build/vendor.js",
     "lint": "standard",
