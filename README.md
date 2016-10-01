@@ -16,3 +16,28 @@ npm install && npm run build
 ```
 
 then load the `build` folder via Chrome extensions page.
+
+
+
+## Install
+
+`npm install —save adblock-minus`
+
+
+
+## Usage
+
+```javascript
+const adblock = require('adblock-minus')
+const blocker = new adblock.Blocker()
+
+const target = 'http://evil.com/ad.gif'
+blocker.match(target) // => false
+blocker.add('||evil.com/ad.')
+blocker.match(target) // => true
+
+blocker.add('evil.com###adbanner')
+for (const selector of blocker.selectors('evil.com')) {
+  console.log(selector) // => ['#adbanner']
+}
+```

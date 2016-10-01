@@ -64,8 +64,6 @@ test('lib:Blocker matcher', (t) => {
 test('lib:Blocker matcher support regexp', (t) => {
   const {blocker} = t.context
   const target = 'https://zhihu-web-analytics.zhihu.com/api/v1/logs/batch'
-  t.false(blocker.match(target))
-
   blocker.add('/\\bzhihu-web-analytics\\b/')
   t.true(blocker.match(target))
 
@@ -76,8 +74,6 @@ test('lib:Blocker matcher support regexp', (t) => {
 test('lib:Blocker matcher no keywords', (t) => {
   const {blocker} = t.context
   const target = 'https://zhihu-web-analytics.zhihu.com/a/b/c/d.gif'
-  t.false(blocker.match(target))
-
   blocker.add('/a/b/c/d.')
   t.true(blocker.match(target))
 

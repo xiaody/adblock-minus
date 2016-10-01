@@ -110,7 +110,7 @@ function addListFromURL (url) {
     .then((txt) => {
       storage.set({ [url]: txt })
       return txt
-    }).catch((err) => void console.error(err))
+    }).catch((err) => console.error(err))
 
   storage.get(url, (item) => {
     if (item[url]) {
