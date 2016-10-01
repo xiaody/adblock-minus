@@ -1,5 +1,7 @@
 /node_modules
 /build
+.nyc_output
+/coverage
 npm-debug.log*
 /bundle.js
 *.tgz

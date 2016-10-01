@@ -20,8 +20,12 @@
     "chrome-manifest": "mustache package.json manifest.json > build/manifest.json",
     "chrome-vendor": "browserify -r url > build/vendor.js",
     "lint": "standard",
-    "spec": "ava",
-    "spec:watch": "ava --watch"
+    "spec": "NODE_ENV=test nyc -s ava",
+    "spec:watch": "ava --watch",
+    "report": "nyc report",
+    "report:lcov": "nyc report -r=lcov",
+    "report:html": "nyc report -r=html",
+    "coverage": "npm run spec && npm run report"
   },
   "keywords": [
     "adblock",
@@ -32,16 +36,25 @@
   "repository": "xiaody/adblock-minus",
   "devDependencies": {
     "ava": "0.16.0",
-    "babel-preset-es2015": "6.14.0",
+    "babel-plugin-istanbul": "2.0.1",
+    "babel-preset-es2015": "6.16.0",
     "babelify": "7.3.0",
     "browserify": "13.1.0",
     "mustache": "2.2.1",
-    "standard": "8.0.0"
+    "nyc": "8.3.0",
+    "standard": "8.3.0"
   },
   "babel": {
     "plugins": [
       "transform-es2015-modules-commonjs"
-    ]
+    ],
+    "env": {
+      "test": {
+        "plugins": [
+          "istanbul"
+        ]
+      }
+    }
   },
   "browserify": {
     "transform": [
@@ -52,5 +65,9 @@
     "require": [
       "babel-register"
     ]
+  },
+  "nyc": {
+    "sourceMap": false,
+    "instrument": false
   }
 }

@@ -1,9 +1,10 @@
 /**
  * Chrome extension example
  */
-import Matcher from '../lib/Matcher'
+import Blocker from '../lib/Blocker'
 import {extractDomain, isThirdParty} from '../lib/utils'
 import {CrTabs} from './helpers'
+const blocker = new Blocker()
 const Tabs = new CrTabs()
 
 const config = require('../config/local.json')
@@ -23,7 +24,7 @@ const insertCSS = (tabId, detail) => {
 }
 
 subscriptions.forEach(addListFromURL)
-additional.forEach(Matcher.addFilter)
+additional.forEach(blocker.add)
 
 chrome.tabs.onRemoved.addListener((id) => Tabs.delete(id))
 chrome.webNavigation.onCommitted.addListener(onCommitted)
@@ -35,7 +36,7 @@ function onCommitted (details) {
   if (details.frameId) return
   let domain = extractDomain(details.url)
   if (!domain) return
-  insertXstyle(details.tabId, Matcher.getStyle(domain))
+  insertXstyle(details.tabId, blocker.selectors(domain))
 }
 
 function insertXstyle (tabId, xstyle) {
@@ -77,7 +78,7 @@ function onBeforeRequest (details) {
     return
   }
 
-  if (Matcher.matchesAny(url, type, documentHost)) {
+  if (blocker.match(url, type, documentHost)) {
     switch (type) {
       case 'IMAGE':
       case 'OBJECT':
@@ -125,6 +126,6 @@ function addFilterFromDoc (item) {
   let i = lines.length
 
   for (; --i;) { // Skip first line
-    Matcher.addFilter(lines[i])
+    blocker.add(lines[i])
   }
 }

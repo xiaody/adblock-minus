@@ -1,11 +1,14 @@
 import test from 'ava'
-import {isThirdParty, extractDomain} from './utils'
+import {isThirdParty, extractDomain} from '../lib/utils'
 
 test('lib:isThirdParty', (t) => {
+  t.false(isThirdParty('zhihu.com', 'zhihu.com'))
   t.false(isThirdParty('www.zhihu.com', 'zhihu.com'))
   t.false(isThirdParty('zhuanlan.zhihu.com', 'zhihu.com'))
   t.false(isThirdParty('zhuanlan.zhihu.com', 'www.zhihu.com'))
 
+  t.true(isThirdParty('zhihu.com.cn', 'zhihu.com'))
+  t.true(isThirdParty('zhihu.com', 'zhihu.com.cn'))
   t.true(isThirdParty('google.com', 'zhihu.com'))
   t.true(isThirdParty('evil.zhihu.xxx', 'zhihu.com'))
 })
