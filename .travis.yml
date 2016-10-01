@@ -8,3 +8,7 @@ after_script:
 addons:
   code_climate:
     repo_token: 7dc9c69c8f02d1f5c889c51825729357f2748d30cb3cbbc0cb03c70722214eb0
+cache:
+  npm: true
+  directories:
+    - node_modules
