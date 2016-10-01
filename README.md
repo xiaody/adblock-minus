@@ -21,7 +21,7 @@ then load the `build` folder via Chrome extensions page.
 
 ## Install
 
-`npm install —save adblock-minus`
+`npm install --save adblock-minus`
 
 
 
