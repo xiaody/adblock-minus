@@ -1,6 +1,6 @@
 {
   "name": "adblock-minus",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Implements core functionality of adblocking",
   "main": "bundle.js",
   "jsnext:main": "module.js",
