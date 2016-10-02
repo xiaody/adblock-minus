@@ -18,5 +18,9 @@
         "app.js"
         ]
     },
+    "options_ui": {
+      "chrome_style": true,
+      "page": "options.html"
+    },
     "homepage_url": "https://github.com/{{&repository}}"
 }

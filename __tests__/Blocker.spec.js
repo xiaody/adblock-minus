@@ -43,18 +43,16 @@ test('lib:Blocker element hide', (t) => {
 
 test('lib:Blocker matcher', (t) => {
   const {blocker} = t.context
-  const target = 'https://zhihu-web-analytics.zhihu.com/api/v1/logs/batch'
+  const target = 'https://zhihu-web-analytics.zhihu.com/api/v1/logs/matches/batch'
   t.false(blocker.match(target))
 
-  blocker.add('^matches-nothing-1^')
-  blocker.add('^matches-nothing-2^')
+  blocker.add('^matches-nothing-1^ \n ^matches-nothing-2^ \n ^matches-nothing-3^')
   t.false(blocker.match(target))
 
   blocker.add('||zhihu-web-analytics.zhihu.com/')
   t.true(blocker.match(target))
 
-  blocker.add('@@^matches-nothing-1^')
-  blocker.add('@@^matches-nothing-2^')
+  blocker.add(['@@^matches-nothing-1^', '@@^matches-nothing-2^ \n @@^matches-nothing-3^'])
   t.true(blocker.match(target))
 
   blocker.add('@@||zhihu-web-analytics.zhihu.com/')

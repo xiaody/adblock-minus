@@ -4,13 +4,9 @@
 import Blocker from '../lib/Blocker'
 import {extractDomain, isThirdParty} from '../lib/utils'
 import {CrTabs} from './helpers'
-const blocker = new Blocker()
 const Tabs = new CrTabs()
 
 const config = require('../config/local.json')
-const subscriptions = config.subscriptions || []
-const additional = config.additional || []
-const whitelist = config.whitelist || []
 const redirectTable = config.redirect
 
 const chrome = window.chrome
@@ -23,8 +19,122 @@ const insertCSS = (tabId, detail) => {
   })
 }
 
-subscriptions.forEach(addListFromURL)
-additional.forEach(blocker.add)
+class Manager {
+  constructor () {
+    this.blockers = new Map()
+    this.whitelist = []
+  }
+
+  add (name, content) {
+    const blocker = new Blocker()
+    blocker.add(content)
+    this.blockers.set(name, blocker)
+  }
+
+  addRemote (name, url) {
+    return new Promise((resolve, reject) => {
+      storage.get(url, (info) => {
+        if (info[url]) {
+          this.add(url, info[url].content)
+        }
+        if (!info[url] || Date.now() - info[url].lastFetched > 3600e3) {
+          window.fetch(url)
+            .then((res) => res.text())
+            .then((content) => {
+              this.add(url, content)
+              storage.set({
+                [url]: {
+                  lastFetched: Date.now(),
+                  content
+                }
+              })
+            })
+            .then(resolve)
+            .catch(reject)
+        } else {
+          resolve()
+        }
+      })
+    })
+  }
+
+  delete (name) {
+    this.blockers.delete(name)
+  }
+
+  *selectors (domain) {
+    if (this.isInWhitelist(domain)) return
+    for (const blocker of this.blockers.values()) {
+      yield * blocker.selectors(domain)
+    }
+  }
+
+  match (url, type, documentHost) {
+    if (this.isInWhitelist(documentHost)) return
+    let ret = false
+    for (const blocker of this.blockers.values()) {
+      const code = blocker.matchStatus(url, type, documentHost)
+      if (code === 1) ret = true
+      if (code === -1) return false
+    }
+    return ret
+  }
+
+  isInWhitelist (domain) {
+    return domain && this.whitelist.some((whitelisted) => (
+      !isThirdParty(domain, whitelisted)
+    ))
+  }
+}
+
+const manager = new Manager()
+const optionKeys = ['subscriptions', 'additional', 'whitelist']
+storage.set({version: '1'})
+storage.get(optionKeys, (options) => {
+  let needInit = false
+  const initConf = {}
+  optionKeys.forEach((key) => {
+    if (typeof options[key] === 'undefined') {
+      needInit = true
+      initConf[key] = config[key]
+    } else {
+      config[key] = options[key]
+    }
+  })
+
+  manager.whitelist = config.whitelist
+  manager.add('additional', config.additional)
+  config.subscriptions.forEach((url) => manager.addRemote(url, url))
+
+  if (needInit) {
+    storage.set(initConf, () => {
+      if (!window.navigator.language.startsWith('zh')) {
+        chrome.runtime.openOptionsPage()
+      }
+    })
+  }
+})
+chrome.storage.onChanged.addListener((changes) => {
+  if (changes.whitelist) {
+    manager.whitelist = changes.whitelist.newValue
+  }
+  if (changes.additional) {
+    manager.add('additional', changes.additional.newValue)
+  }
+  if (changes.subscriptions) {
+    const {oldValue, newValue} = changes.subscriptions
+    newValue.forEach((url) => {
+      if (oldValue && oldValue.includes(url)) return
+      manager.addRemote(url, url)
+    })
+    if (Array.isArray(oldValue)) {
+      oldValue.forEach((url) => {
+        if (changes.subscriptions.newValue.includes(url)) return
+        manager.delete(url)
+      })
+    }
+  }
+})
 
 chrome.tabs.onRemoved.addListener((id) => Tabs.delete(id))
 chrome.webNavigation.onCommitted.addListener(onCommitted)
@@ -36,7 +146,7 @@ function onCommitted (details) {
   if (details.frameId) return
   let domain = extractDomain(details.url)
   if (!domain) return
-  insertXstyle(details.tabId, blocker.selectors(domain))
+  insertXstyle(details.tabId, manager.selectors(domain))
 }
 
 function insertXstyle (tabId, xstyle) {
@@ -73,12 +183,9 @@ function onBeforeRequest (details) {
     type = type.toUpperCase()
   }
 
-  if (!documentHost ||
-    whitelist.some((domain) => !isThirdParty(documentHost, domain))) {
-    return
-  }
+  if (!documentHost) return
 
-  if (blocker.match(url, type, documentHost)) {
+  if (manager.match(url, type, documentHost)) {
     switch (type) {
       case 'IMAGE':
       case 'OBJECT':
@@ -100,32 +207,5 @@ function onBeforeRequest (details) {
     return {
       redirectUrl: redirectTable[type] || redirectTable.OTHER
     }
-  }
-}
-
-// Functions for download and add filters.
-function addListFromURL (url) {
-  let promise = window.fetch(url)
-    .then((res) => res.text())
-    .then((txt) => {
-      storage.set({ [url]: txt })
-      return txt
-    }).catch((err) => console.error(err))
-
-  storage.get(url, (item) => {
-    if (item[url]) {
-      addFilterFromDoc(item[url])
-    } else {
-      promise.then(addFilterFromDoc)
-    }
-  })
-}
-
-function addFilterFromDoc (item) {
-  let lines = item.split(/[\r\n]+/)
-  let i = lines.length
-
-  for (; --i;) { // Skip first line
-    blocker.add(lines[i])
   }
 }

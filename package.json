@@ -15,9 +15,9 @@
   "scripts": {
     "test": "npm run lint && npm run spec",
     "build": "npm run chrome-vendor && browserify -e chrome/background.js -x url > build/app.js",
-    "prebuild": "npm test && mkdir -p build && npm run chrome-manifest",
+    "prebuild": "npm test && mkdir -p build && npm run chrome-asset",
     "prepublish": "browserify --node -e module.js -s default > bundle.js",
-    "chrome-manifest": "mustache package.json manifest.json > build/manifest.json",
+    "chrome-asset": "cp chrome/options.* build && mustache package.json manifest.json > build/manifest.json",
     "chrome-vendor": "browserify -r url > build/vendor.js",
     "lint": "standard",
     "spec": "NODE_ENV=test nyc -s ava",
