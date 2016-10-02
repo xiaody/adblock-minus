@@ -36,11 +36,14 @@ class Manager {
       storage.get(url, (info) => {
         if (info[url]) {
           this.add(url, info[url].content)
+        } else {
+          this.add(url, '') // as a placeholder
         }
-        if (!info[url] || Date.now() - info[url].lastFetched > 3600e3) {
+        if (!info[url] || Date.now() - info[url].lastFetched > 86400e3) {
           window.fetch(url)
             .then((res) => res.text())
             .then((content) => {
+              if (!this.blockers.has(url)) return
               this.add(url, content)
               storage.set({
                 [url]: {
@@ -135,6 +138,14 @@ chrome.storage.onChanged.addListener((changes) => {
     }
   }
 })
+
+setInterval(() => {
+  for (const name of manager.blockers.keys()) {
+    if (/^https?:\/\//.test(name)) {
+      manager.addRemote(name, name)
+    }
+  }
+}, 86400e3)
 
 chrome.tabs.onRemoved.addListener((id) => Tabs.delete(id))
 chrome.webNavigation.onCommitted.addListener(onCommitted)
