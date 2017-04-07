@@ -65,7 +65,7 @@ class Manager {
     this.blockers.delete(name)
   }
 
-  *selectors (domain) {
+  * selectors (domain) {
     if (this.isInWhitelist(domain)) return
     for (const blocker of this.blockers.values()) {
       yield * blocker.selectors(domain)
