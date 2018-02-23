@@ -90,8 +90,9 @@ class Manager {
   }
 }
 
-const manager = new Manager()
-const optionKeys = ['subscriptions', 'additional', 'whitelist']
+const adManager = new Manager()
+const refManager = new Manager()
+const optionKeys = ['subscriptions', 'additional', 'whitelist', 'referrer']
 storage.set({version: '1'})
 storage.get(optionKeys, (options) => {
   let needInit = false
@@ -105,9 +106,10 @@ storage.get(optionKeys, (options) => {
     }
   })
 
-  manager.whitelist = config.whitelist
-  manager.add('additional', config.additional)
-  config.subscriptions.forEach((url) => manager.addRemote(url, url))
+  adManager.whitelist = config.whitelist
+  adManager.add('additional', config.additional)
+  config.subscriptions.forEach((url) => adManager.addRemote(url, url))
+  refManager.add('additional', config.referrer)
 
   if (needInit) {
     storage.set(initConf, () => {
@@ -119,30 +121,33 @@ storage.get(optionKeys, (options) => {
 })
 chrome.storage.onChanged.addListener((changes) => {
   if (changes.whitelist) {
-    manager.whitelist = changes.whitelist.newValue
+    adManager.whitelist = changes.whitelist.newValue
   }
   if (changes.additional) {
-    manager.add('additional', changes.additional.newValue)
+    adManager.add('additional', changes.additional.newValue)
   }
   if (changes.subscriptions) {
     const {oldValue, newValue} = changes.subscriptions
     newValue.forEach((url) => {
       if (oldValue && oldValue.includes(url)) return
-      manager.addRemote(url, url)
+      adManager.addRemote(url, url)
     })
     if (Array.isArray(oldValue)) {
       oldValue.forEach((url) => {
         if (changes.subscriptions.newValue.includes(url)) return
-        manager.delete(url)
+        adManager.delete(url)
       })
     }
+  }
+  if (changes.referrer) {
+    refManager.add('additional', changes.referrer.newValue)
   }
 })
 
 setInterval(() => {
-  for (const name of manager.blockers.keys()) {
+  for (const name of adManager.blockers.keys()) {
     if (/^https?:\/\//.test(name)) {
-      manager.addRemote(name, name)
+      adManager.addRemote(name, name)
     }
   }
 }, 86400e3)
@@ -152,12 +157,15 @@ chrome.webNavigation.onCommitted.addListener(onCommitted)
 chrome.webRequest.onBeforeRequest.addListener(
   onBeforeRequest, {urls: ['http://*/*', 'https://*/*']}, ['blocking']
 )
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  onBeforeSendHeaders, {urls: ['http://*/*', 'https://*/*']}, ['blocking', 'requestHeaders']
+)
 
 function onCommitted (details) {
   if (details.frameId) return
   let domain = extractDomain(details.url)
   if (!domain) return
-  insertXstyle(details.tabId, manager.selectors(domain))
+  insertXstyle(details.tabId, adManager.selectors(domain))
 }
 
 function insertXstyle (tabId, xstyle) {
@@ -196,7 +204,7 @@ function onBeforeRequest (details) {
 
   if (!documentHost) return
 
-  if (manager.match(url, type, documentHost)) {
+  if (adManager.match(url, type, documentHost)) {
     switch (type) {
       case 'IMAGE':
       case 'OBJECT':
@@ -218,5 +226,28 @@ function onBeforeRequest (details) {
     return {
       redirectUrl: redirectTable[type] || redirectTable.OTHER
     }
+  }
+}
+
+function onBeforeSendHeaders (details) {
+  let url = details.url.toLowerCase()
+  let type = details.type
+
+  if (type === 'main_frame') {
+    type = 'DOCUMENT'
+  } else if (type === 'sub_frame') {
+    type = 'SUBDOCUMENT'
+  } else {
+    type = type.toUpperCase()
+  }
+
+  if (refManager.match(url, type)) {
+    for (let i = 0; i < details.requestHeaders.length; ++i) {
+      if (details.requestHeaders[i].name === 'Referer') {
+        details.requestHeaders.splice(i, 1)
+        break
+      }
+    }
+    return {requestHeaders: details.requestHeaders}
   }
 }
